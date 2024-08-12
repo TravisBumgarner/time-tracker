@@ -1,0 +1,87 @@
+{
+  "name": "timetracker",
+  "productName": "Time Tracker",
+  "version": "0.0.0",
+  "main": "dist-electron/main/index.js",
+  "description": "Minimalistic Time Tracker",
+  "license": "MIT",
+  "author": "Travis Bumgarner",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TravisBumgarner/time-tracker.git"
+  },
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+    }
+  },
+  "scripts": {
+    "bootstrap": "./scripts/bootstrap.sh",
+    "start": "vite --force",
+    "build-react": "tsc && vite build",
+    "setup-dev-mac": "rm -rf ./release && export CSC_IDENTITY_AUTO_DISCOVERY=false",
+    "setup-prod-mac": "rm -rf ./release && export CSC_IDENTITY_AUTO_DISCOVERY=true",
+    "build-electron-mac-dev": "yarn run setup-dev-mac && yarn build-react && electron-builder build --mac --publish never --config ./electron-builder.dev.js && yarn run post-build-cleanup-mac",
+    "build-electron-mac-prod": "yarn run setup-prod-mac && yarn build-react && electron-builder build --mac --publish never --config ./electron-builder.production.js && yarn run post-build-cleanup-mac",
+    "deploy-electron-mac-prod": "yarn run setup-prod-mac && yarn build-react && electron-builder build --mac --publish always --config ./electron-builder.production.js && yarn run post-build-cleanup-mac",
+    "post-build-cleanup-mac": "rm -rf dist/ dist-electron/",
+    
+    "setup-win": "rmdir /s /q release",
+    "build-electron-win-dev": "yarn build-react && electron-builder build --win --publish never --config ./electron-builder.dev.js && yarn run post-build-cleanup-win",
+    "build-electron-win-prod": "yarn run setup-win && yarn build-react && electron-builder build --win --publish never --config ./electron-builder.production.js && yarn run post-build-cleanup-win",
+    "post-build-cleanup-win": "rmdir /s /q dist && rmdir /s /q dist-electron",
+    "deploy-electron-win-prod": "yarn run setup-win && yarn build-react && electron-builder build --win --publish always --config ./electron-builder.production.js && yarn run post-build-cleanup-win",
+    
+    "lint": "eslint src --ext .ts,.tsx",
+    "verify-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.4"
+  },
+  "devDependencies": {
+    "@electron/notarize": "^2.1.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/comfortaa": "^5.0.12",
+    "@hello-pangea/dnd": "^16.3.0",
+    "@mui/icons-material": "^5.14.9",
+    "@mui/material": "^5.14.9",
+    "@types/lodash": "^4.14.198",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@types/uuid": "^9.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "@typescript-eslint/parser": "^6.7.2",
+    "@vitejs/plugin-react": "^4.0.4",
+    "dexie": "^3.2.4",
+    "dexie-react-hooks": "^1.1.6",
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.3",
+    "electron-log": "^4.4.8",
+    "eslint": "^8.49.0",
+    "eslint-config-standard-with-typescript": "^39.0.0",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-n": "^16.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-unused-imports": "^3.2.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-svg": "^16.1.27",
+    "todo-today-utilities": "^1.0.23",
+    "typescript": "^5.1.6",
+    "use-async-effect": "^2.2.7",
+    "uuid": "^9.0.1",
+    "vite": "^4.4.9",
+    "vite-plugin-electron": "^0.13.0-beta.3",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  }
+}
