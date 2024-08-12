@@ -1,0 +1,14 @@
+*::-webkit-scrollbar {
+  width: 1em;
+}
+
+*::-webkit-scrollbar-track {
+  border: solid 3px var(--mui-palette-background-default);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--mui-palette-primary-main);
+  border: solid 3px var(--mui-palette-background-default);
+  border-radius: 10px;
+}
