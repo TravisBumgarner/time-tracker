@@ -73,7 +73,7 @@ interface EditUserSettings {
   type: 'EDIT_USER_SETTING'
   payload: {
     key: keyof State['settings']
-    value: string | number
+    value: any
   }
 }
 

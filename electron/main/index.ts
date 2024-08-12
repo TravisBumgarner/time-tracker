@@ -64,7 +64,7 @@ async function createWindow() {
     minHeight: 700,
     x: 0,
     y: 0,
-    title: isDev ? 'DEV MODE' : 'Todo Today',
+    title: isDev ? 'DEV MODE' : 'Time Tracker',
     icon: join(process.env.VITE_PUBLIC, 'icon.icns'),
     webPreferences: {
       preload,

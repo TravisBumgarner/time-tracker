@@ -62,7 +62,7 @@ const Header = () => {
         <IconButton color="primary"
           onClick={handleHome}
         >
-          <Tooltip title="Todo Today">
+          <Tooltip title="Time Tracker">
             <ChecklistIcon />
           </Tooltip>
         </IconButton>
