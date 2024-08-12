@@ -1,8 +1,8 @@
 require('dotenv').config({path: './electron-builder.env'});
 
 const config = {
-  "productName": "Todo Today", // Needs to be unique for each environment or else can't open both at once.
-  "appId": "us.sillysideprojects.todotoday",
+  "productName": "Time Tracker", // Needs to be unique for each environment or else can't open both at once.
+  "appId": "com.sillysideprojects.timetracker",
   "asar": true,
   "afterSign": "scripts/notarize.js",
   "directories": {

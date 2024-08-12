@@ -22,7 +22,7 @@ import { ModalID } from './RenderModal'
 const copyIndexedDBToObject = async () => {
   const data = {
     projects: await database.projects.toArray(),
-    tasks: await database.tasks.toArray()
+    tasks: await database.projectEntries.toArray()
   }
   return data
 }
@@ -99,12 +99,12 @@ const Settings = () => {
 
             await Promise.all([
               database.projects.clear(),
-              database.tasks.clear()
+              database.projectEntries.clear()
             ])
 
             await Promise.all([
               database.projects.bulkAdd(newStore.projects),
-              database.tasks.bulkAdd(newStore.tasks)
+              database.projectEntries.bulkAdd(newStore.tasks)
             ])
           } else {
             dispatch({
@@ -148,19 +148,6 @@ const Settings = () => {
       title="Settings"
       showModal={true}
     >
-      <Box css={sectionWrapperCSS}>
-        <Box css={sectionHeaderWrapperCSS}>
-          <Typography variant="h3">Todo List</Typography>
-          <HtmlTooltip title={
-            <>
-              <Typography variant="body2"><Box component="span" fontWeight={700}>Concurrent Tasks</Box> - How many tasks to show at once when doing focused work.</Typography>
-            </>
-          }>
-            <HelpOutlineIcon color="primary" fontSize='small' />
-          </HtmlTooltip>
-        </Box>
-      </Box>
-
       <Box css={sectionWrapperCSS}>
         <Typography variant="h3">Theme</Typography>
         <FormControl fullWidth margin='normal'>

@@ -15,10 +15,12 @@ export interface TProject {
   status: EProjectStatus
 }
 
-export interface TTask {
+export interface TProjectEntry {
   id: string
   projectId: string
   details: string
+  durationMS: number
+  date: string
 }
 
 export enum EBackupInterval {
