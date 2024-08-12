@@ -1,10 +1,12 @@
-import { Box, Button, Container, css, FormControl, FormLabel, Input, InputLabel, MenuItem, Select, type SelectChangeEvent } from '@mui/material'
+import { Box, Button, Container, css, FormControl, FormLabel, Input, InputLabel, MenuItem, Select, Table, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import db from 'database'
-import { EProjectStatus, type TProjectEntry } from 'types'
+import { EmptyStateDisplay } from 'sharedComponents'
+import { EProjectStatus, type TProject, type TProjectEntry } from 'types'
+import { formatDurationDisplayString } from 'utilities'
 
 const TimeInput = () => {
     const startTime = useRef<Date | null>(null)
@@ -17,8 +19,13 @@ const TimeInput = () => {
         setSelectedProjectId(event.target.value)
     }, [])
 
-    const projects = useLiveQuery(async () => {
-        return await db.projects.toArray()
+    const projects: Record<string, TProject> | undefined = useLiveQuery(async () => {
+        const projectsArray = await db.projects.toArray()
+        const projectsById = projectsArray.reduce<Record<string, TProject>>((acc, project) => {
+            acc[project.id] = project
+            return acc
+        }, {})
+        return projectsById
     }, [])
 
     const projectEntries = useLiveQuery(async () => {
@@ -66,7 +73,11 @@ const TimeInput = () => {
 
         startTime.current = null
     }, [startTime, selectedProjectId, newProjectTitle, addProject])
-    console.log('ruda', startTime.current)
+
+    if (!projects) {
+        return <EmptyStateDisplay message="Do Soemthing lol" />
+    }
+
     return (
         <Container>
             <div>
@@ -83,55 +94,65 @@ const TimeInput = () => {
                         : (
                             (
                                 <Box css={setupTimerContainerCSS}>
-                                    <FormControl fullWidth css={selectProjectContainerCSS}>
-                                        <InputLabel id="selected-project-id">Selected Project</InputLabel>
-                                        <Select
-                                            labelId="selected-project-id"
-                                            value={selectedProjectId}
-                                            label="Selected Project"
-                                            onChange={handleProjectChange}
-                                        >
-                                            <MenuItem value="">Add New</MenuItem>
-                                            {projects?.map((project) => (
-                                                <MenuItem key={project.id} value={project.id}>{project.title}</MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                    {selectedProjectId === '' && (
-                                        <FormControl>
-                                            <Input value={newProjectTitle} onChange={(e) => { setNewProjectTitle(e.target.value) }} />
+                                    <div>
+                                        <FormControl fullWidth css={selectProjectContainerCSS}>
+                                            <InputLabel id="selected-project-id">Selected Project</InputLabel>
+                                            <Select
+                                                labelId="selected-project-id"
+                                                value={selectedProjectId}
+                                                label="Selected Project"
+                                                onChange={handleProjectChange}
+                                            >
+                                                <MenuItem value="">Add New</MenuItem>
+                                                {projects && Object.values(projects).map((project) => (
+                                                    <MenuItem key={project.id} value={project.id}>{project.title}</MenuItem>
+                                                ))}
+                                            </Select>
                                         </FormControl>
-                                    )}
-                                    <Button variant='contained' onClick={startTimer}>Start</Button>
+                                        {selectedProjectId === '' && (
+                                            <FormControl>
+                                                <Input value={newProjectTitle} onChange={(e) => { setNewProjectTitle(e.target.value) }} />
+                                            </FormControl>
+                                        )}
+                                    </div>
+                                    <Button disabled={!selectedProjectId && !newProjectTitle} variant='contained' onClick={startTimer}>Start</Button>
                                 </Box>
 
                             )
                         )
                 }
             </div>
-            {projectEntries?.map((entry) => (
-                <div key={entry.id}>
-                    <p>Project: {entry.projectId}</p>
-                    <p>Duration: {entry.durationMS}</p>
-                    <p>Date: {entry.date}</p>
-                </div>
-            ))}
+            <Table>
+                <TableHead>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Project</TableCell>
+                    <TableCell>Duration</TableCell>
+                </TableHead>
+                {projectEntries?.map((entry) => (
+                    <TableRow key={entry.id}>
+                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                        <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
+                    </TableRow>
+                ))}
+            </Table>
         </Container>
     )
 }
 
 const selectProjectContainerCSS = css`
-            width: 300px;
-            `
+    width: 300px;
+`
 
 const setupTimerContainerCSS = css`
-            display: flex;
-            flex-direction: row;
-            `
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`
 
 const endTimerContainerCSS = css`
-            display: flex;
-            flex-direction: row;
-            `
+    display: flex;
+    flex-direction: row;
+`
 
 export default TimeInput

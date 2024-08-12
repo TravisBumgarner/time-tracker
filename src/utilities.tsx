@@ -34,11 +34,14 @@ const formatDateKeyLookup = (date: moment.Moment): TDateISODate => {
   return date.format('YYYY-MM-DD') as TDateISODate
 }
 
-const formatDurationDisplayString = (rawMinutes: number) => {
-  const hours = Math.floor(rawMinutes / 60)
-  const minutes = rawMinutes % 60
-  const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes
-  return `${hours}:${paddedMinutes}`
+const formatDurationDisplayString = (rawMS: number) => {
+  const hours = Math.floor(rawMS / 1000 / 60 / 60)
+  const minutes = Math.floor(rawMS / 1000 / 60) % 60
+  const seconds = Math.floor(rawMS / 1000) % 60
+
+  const hoursString = hours > 0 ? `${hours}h ` : ''
+
+  return `${hoursString}${minutes}m ${seconds}s`
 }
 
 const saveFile = async (fileName: string, jsonData: unknown) => {
