@@ -1,5 +1,4 @@
 import moment, { type Moment } from 'moment'
-
 import { useState } from 'react'
 import { formatDateKeyLookup } from 'utilities'
 import ChartHoursPerProject from './ChartHoursPerProject'
@@ -54,6 +53,42 @@ const Charts = () => {
         setSelectedDate(new Date(e.target.value))
     }
 
+    const handlePreviousDate = () => {
+        const mDate = moment(selectedDate)
+        switch (currentView) {
+            case View.Daily:
+                setSelectedDate(mDate.subtract(1, 'day').toDate())
+                break
+            case View.Weekly:
+                setSelectedDate(mDate.subtract(1, 'week').toDate())
+                break
+            case View.Monthly:
+                setSelectedDate(mDate.subtract(1, 'month').toDate())
+                break
+            case View.AllTime:
+                setSelectedDate(mDate.subtract(1, 'year').toDate())
+                break
+        }
+    }
+
+    const handleNextDate = () => {
+        const mDate = moment(selectedDate)
+        switch (currentView) {
+            case View.Daily:
+                setSelectedDate(mDate.add(1, 'day').toDate())
+                break
+            case View.Weekly:
+                setSelectedDate(mDate.add(1, 'week').toDate())
+                break
+            case View.Monthly:
+                setSelectedDate(mDate.add(1, 'month').toDate())
+                break
+            case View.AllTime:
+                setSelectedDate(mDate.add(1, 'year').toDate())
+                break
+        }
+    }
+
     const { start, end } = getDateRange(currentView, selectedDate)
 
     return (
@@ -65,7 +100,9 @@ const Charts = () => {
                 <button onClick={() => { setCurrentView(View.AllTime) }}>All Time</button>
             </div>
             <div>
-                <input type="date" value={selectedDate.toISOString().split('T')[0]} onChange={handleDateChange} />
+                <button disabled={currentView === View.AllTime} onClick={handlePreviousDate}>Previous</button>
+                <input disabled={currentView === View.AllTime} type="date" value={selectedDate.toISOString().split('T')[0]} onChange={handleDateChange} />
+                <button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</button>
             </div>
             <ChartHoursPerProject start={start} end={end} />
         </div>
