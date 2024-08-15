@@ -11,6 +11,7 @@ import { DATE_BACKUP_DATE } from '../../shared/utilities'
 import { isDebugProduction, isDev } from './config'
 import menu from './menu'
 import Timer from './timer'
+import TrayGenerator from './TrayGenerator'
 import { update } from './update'
 
 Menu.setApplicationMenu(menu)
@@ -58,10 +59,14 @@ const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
-    width: 840,
-    height: 700,
-    minWidth: 840,
-    minHeight: 700,
+    width: 400,
+    height: 300,
+    minWidth: 400,
+    minHeight: 300,
+    show: false,
+    frame: false,
+    fullscreenable: false,
+    resizable: false,
     x: 0,
     y: 0,
     title: isDev ? 'DEV MODE' : 'Time Tracker',
@@ -101,7 +106,11 @@ async function createWindow() {
   update(win)
 }
 
-void app.whenReady().then(createWindow)
+void app.whenReady().then(async () => {
+  await createWindow()
+  const Tray = new TrayGenerator(win!)
+  Tray.createTray()
+})
 
 app.on('window-all-closed', () => {
   win = null
