@@ -2,8 +2,9 @@ import { useCallback, useContext, useMemo } from 'react'
 // import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Box, css, IconButton, Tooltip, Typography } from '@mui/material'
 
-import ChecklistIcon from '@mui/icons-material/Checklist'
+import ChartIcon from '@mui/icons-material/BarChart'
 import SettingsIcon from '@mui/icons-material/Settings'
+import TimerIcon from '@mui/icons-material/Timer'
 import { context } from 'Context'
 import { ModalID } from 'modals'
 import { EActivePage } from 'types'
@@ -51,6 +52,10 @@ const Header = () => {
     dispatch({ type: 'SET_ACTIVE_PAGE', payload: { page: EActivePage.Home } })
   }, [dispatch])
 
+  const handleCharts = useCallback(() => {
+    dispatch({ type: 'SET_ACTIVE_PAGE', payload: { page: EActivePage.Charts } })
+  }, [dispatch])
+
   const handleSettings = useCallback(() => {
     dispatch({ type: 'SET_ACTIVE_MODAL', payload: { id: ModalID.SETTINGS_MODAL } })
   }, [dispatch])
@@ -63,7 +68,15 @@ const Header = () => {
           onClick={handleHome}
         >
           <Tooltip title="Time Tracker">
-            <ChecklistIcon />
+            <TimerIcon />
+          </Tooltip>
+        </IconButton>
+
+        <IconButton color="primary"
+          onClick={handleCharts}
+        >
+          <Tooltip title="Charts">
+            <ChartIcon />
           </Tooltip>
         </IconButton>
 

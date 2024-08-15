@@ -1,6 +1,7 @@
 import CssBaseline from '@mui/material/CssBaseline'; // https://stackoverflow.com/questions/74542488/react-material-ui-createtheme-default-is-not-a-function
 
 import { Box, Experimental_CssVarsProvider, css } from '@mui/material'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { useContext, useEffect, useMemo } from 'react'
 
 import Context, { context } from 'Context'
@@ -9,6 +10,7 @@ import { baseTheme, beachTheme, highContrastTheme, retroFutureTheme, underTheSea
 import { Header, Message, Router } from './components'
 import { EColorTheme } from './types'
 
+import { LocalizationProvider } from '@mui/x-date-pickers'
 import { useIPCAsyncMessageEffect } from './hooks/useIPCAsyncMessageEffect'
 import { setupAutomatedBackup } from './modals/Settings'
 
@@ -41,12 +43,13 @@ const App = () => {
 
   return (
     <Experimental_CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <Box css={appWrapperCSS}>
-        <Message />
-        <Header />
-        <Router />
-      </Box>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <Box css={appWrapperCSS}>
+          <Message />
+          <Header />
+          <Router />
+        </Box>
+      </LocalizationProvider>
       <RenderModal />
     </Experimental_CssVarsProvider>
   )
@@ -66,8 +69,9 @@ const appWrapperCSS = css`
 const InjectedApp = () => {
   return (
     <Context>
+      <CssBaseline />
       <App />
-    </Context>
+    </Context >
   )
 }
 

@@ -39,6 +39,7 @@ module.exports = {
     "import/no-unresolved": "error",
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/space-before-function-paren": "off",
+    'react/prop-types': 'off',
     "unused-imports/no-unused-vars": [
       "warn",
       {

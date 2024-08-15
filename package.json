@@ -26,18 +26,18 @@
     "build-electron-mac-prod": "yarn run setup-prod-mac && yarn build-react && electron-builder build --mac --publish never --config ./electron-builder.production.js && yarn run post-build-cleanup-mac",
     "deploy-electron-mac-prod": "yarn run setup-prod-mac && yarn build-react && electron-builder build --mac --publish always --config ./electron-builder.production.js && yarn run post-build-cleanup-mac",
     "post-build-cleanup-mac": "rm -rf dist/ dist-electron/",
-    
     "setup-win": "rmdir /s /q release",
     "build-electron-win-dev": "yarn build-react && electron-builder build --win --publish never --config ./electron-builder.dev.js && yarn run post-build-cleanup-win",
     "build-electron-win-prod": "yarn run setup-win && yarn build-react && electron-builder build --win --publish never --config ./electron-builder.production.js && yarn run post-build-cleanup-win",
     "post-build-cleanup-win": "rmdir /s /q dist && rmdir /s /q dist-electron",
     "deploy-electron-win-prod": "yarn run setup-win && yarn build-react && electron-builder build --win --publish always --config ./electron-builder.production.js && yarn run post-build-cleanup-win",
-    
     "lint": "eslint src --ext .ts,.tsx",
     "verify-types": "tsc --noEmit"
   },
   "dependencies": {
-    "electron-updater": "^6.1.4"
+    "@mui/x-date-pickers": "^7.12.1",
+    "electron-updater": "^6.1.4",
+    "recharts": "^2.13.0-alpha.4"
   },
   "devDependencies": {
     "@electron/notarize": "^2.1.0",

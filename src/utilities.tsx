@@ -31,6 +31,8 @@ const formatDateDisplayString = (date: TDateISODate | null): string => {
 }
 
 const formatDateKeyLookup = (date: moment.Moment): TDateISODate => {
+  console.log('formatDateKeyLookup', date)
+  console.log('returning', date.format('YYYY-MM-DD'))
   return date.format('YYYY-MM-DD') as TDateISODate
 }
 
