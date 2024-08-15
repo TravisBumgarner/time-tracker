@@ -1,5 +1,5 @@
 import TrashIcon from '@mui/icons-material/Delete'
-import { Box, Button, Container, css, FormControl, FormLabel, IconButton, Input, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
+import { Box, Button, Container, css, FormControl, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useContext, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -70,6 +70,14 @@ const TimeInput = () => {
         })
     }, [dispatch])
 
+    const cancelTimer = useCallback(() => {
+        startTime.current = null
+        setTimerRunning(false)
+        setSelectedProjectId('')
+        setNewProjectTitle('')
+        setPercentFocus(100)
+    }, [])
+
     const endTimer = useCallback(async () => {
         if (!startTime.current) return
         setTimerRunning(false)
@@ -90,6 +98,9 @@ const TimeInput = () => {
         await db.projectEntries.add(newEntry)
 
         startTime.current = null
+        setSelectedProjectId('')
+        setNewProjectTitle('')
+        setPercentFocus(100)
     }, [startTime, selectedProjectId, newProjectTitle, addProject])
 
     return (
@@ -99,10 +110,20 @@ const TimeInput = () => {
                     timerRunning
                         ? (
                             <Box css={endTimerContainerCSS}>
-                                <FormLabel>% Focus</FormLabel>
-                                <Input onChange={(e) => { setPercentFocus(parseInt(e.target.value)) }} value={percentFocus} type='number' />
-                                <Button variant='contained' onClick={endTimer}>End Timer</Button>
-                                <Button color="error" >Cancel</Button>
+                                <div>
+                                    <TextField
+                                        id="outlined-number"
+                                        label="% Focus"
+                                        onChange={(e) => { setPercentFocus(parseInt(e.target.value)) }}
+                                        value={percentFocus}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </div>
+                                <div>
+                                    <Button size="small" color="error" onClick={cancelTimer}>Cancel</Button>
+                                    <Button size="small" variant='contained' onClick={endTimer}>End Timer</Button>
+                                </div>
                             </Box>
                         )
                         : (
@@ -110,11 +131,11 @@ const TimeInput = () => {
                                 <Box css={setupTimerContainerCSS}>
                                     <div>
                                         <FormControl fullWidth css={selectProjectContainerCSS}>
-                                            <InputLabel id="selected-project-id">Selected Project</InputLabel>
                                             <Select
+                                                displayEmpty
+                                                size="small"
                                                 labelId="selected-project-id"
                                                 value={selectedProjectId}
-                                                label="Selected Project"
                                                 onChange={handleProjectChange}
                                             >
                                                 <MenuItem value="">Add New</MenuItem>
@@ -124,12 +145,12 @@ const TimeInput = () => {
                                             </Select>
                                         </FormControl>
                                         {selectedProjectId === '' && (
-                                            <FormControl>
-                                                <Input value={newProjectTitle} onChange={(e) => { setNewProjectTitle(e.target.value) }} />
+                                            <FormControl sx={{ marginLeft: '16px' }}>
+                                                <TextField size="small" placeholder="New Project" value={newProjectTitle} onChange={(e) => { setNewProjectTitle(e.target.value) }} />
                                             </FormControl>
                                         )}
                                     </div>
-                                    <Button disabled={!selectedProjectId && !newProjectTitle} variant='contained' onClick={startTimer}>Start</Button>
+                                    <Button size="small" disabled={!selectedProjectId && !newProjectTitle} variant='contained' onClick={startTimer}>Start</Button>
                                 </Box>
 
                             )
@@ -139,34 +160,41 @@ const TimeInput = () => {
             {(!projects || !projectEntries || projectEntries.length === 0)
                 ? < EmptyStateDisplay message="Do Soemthing lol" />
                 : (
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Date</TableCell>
-                                <TableCell>Project</TableCell>
-                                <TableCell>Duration</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {projectEntries?.map((entry) => (
-                                <TableRow key={entry.id}>
-                                    <TableCell>{entry.date}</TableCell>
-                                    <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
-                                    <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
-                                    <TableCell>
-                                        <IconButton aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
-                                            <TrashIcon />
-                                        </IconButton>
-                                    </TableCell>
+                    <Box css={tableContainerCSS}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Project</TableCell>
+                                    <TableCell>Duration</TableCell>
+                                    <TableCell>Actions</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHead>
+                            <TableBody>
+                                {projectEntries?.map((entry) => (
+                                    <TableRow key={entry.id}>
+                                        <TableCell>{entry.date}</TableCell>
+                                        <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                                        <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
+                                        <TableCell>
+                                            <IconButton aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
+                                                <TrashIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Box>
                 )}
         </Container>
     )
 }
+
+const tableContainerCSS = css`
+    overflow: auto;
+    height: 500px;
+`
 
 const selectProjectContainerCSS = css`
     width: 300px;
@@ -176,11 +204,14 @@ const setupTimerContainerCSS = css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 `
 
 const endTimerContainerCSS = css`
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 `
 
 export default TimeInput
