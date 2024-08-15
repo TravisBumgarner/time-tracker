@@ -1,15 +1,19 @@
-import { Box, Button, Container, css, FormControl, FormLabel, Input, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
+import TrashIcon from '@mui/icons-material/Delete'
+import { Box, Button, Container, css, FormControl, FormLabel, IconButton, Input, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useContext, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
+import { context } from 'Context'
 import db from 'database'
+import { ModalID } from 'modals'
 import moment, { type Moment } from 'moment'
 import { EmptyStateDisplay } from 'sharedComponents'
 import { EProjectStatus, type TProject, type TProjectEntry } from 'types'
 import { formatDateKeyLookup, formatDurationDisplayString } from 'utilities'
 
 const TimeInput = () => {
+    const { dispatch } = useContext(context)
     const startTime = useRef<Moment | null>(null)
     const [timerRunning, setTimerRunning] = useState(false)
     const [selectedProjectId, setSelectedProjectId] = useState('')
@@ -51,6 +55,21 @@ const TimeInput = () => {
         setTimerRunning(true)
     }, [])
 
+    const triggerDeleteModal = useCallback((id: string) => {
+        dispatch({
+            type: 'SET_ACTIVE_MODAL',
+            payload: {
+                id: ModalID.CONFIRMATION_MODAL,
+                title: 'Delete Entry?',
+                confirmationColor: 'warning',
+                confirmationText: 'Delete',
+                confirmationCallback: () => {
+                    void db.projectEntries.where('id').equals(id).delete()
+                }
+            }
+        })
+    }, [dispatch])
+
     const endTimer = useCallback(async () => {
         if (!startTime.current) return
         setTimerRunning(false)
@@ -72,10 +91,6 @@ const TimeInput = () => {
 
         startTime.current = null
     }, [startTime, selectedProjectId, newProjectTitle, addProject])
-
-    if (!projects) {
-        return <EmptyStateDisplay message="Do Soemthing lol" />
-    }
 
     return (
         <Container>
@@ -121,24 +136,34 @@ const TimeInput = () => {
                         )
                 }
             </div>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Project</TableCell>
-                        <TableCell>Duration</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {projectEntries?.map((entry) => (
-                        <TableRow key={entry.id}>
-                            <TableCell>{entry.date}</TableCell>
-                            <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
-                            <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            {(!projects || !projectEntries || projectEntries.length === 0)
+                ? < EmptyStateDisplay message="Do Soemthing lol" />
+                : (
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Date</TableCell>
+                                <TableCell>Project</TableCell>
+                                <TableCell>Duration</TableCell>
+                                <TableCell>Actions</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {projectEntries?.map((entry) => (
+                                <TableRow key={entry.id}>
+                                    <TableCell>{entry.date}</TableCell>
+                                    <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                                    <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
+                                    <TableCell>
+                                        <IconButton aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
+                                            <TrashIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
         </Container>
     )
 }

@@ -24,11 +24,7 @@ const RenderModal: FC = () => {
       return <SettingsModal />
     case ModalID.CONFIRMATION_MODAL:
       return < ConfirmationModal
-        id={state.activeModal.id}
-        title={state.activeModal.title}
-        body={state.activeModal.body}
-        cancelCallback={state.activeModal.cancelCallback}
-        confirmationCallback={state.activeModal.confirmationCallback}
+        {...state.activeModal}
       />
     default:
       return null

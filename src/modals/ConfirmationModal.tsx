@@ -9,12 +9,18 @@ import { type ModalID } from './RenderModal'
 export interface ConfirmationModalProps {
   id: ModalID
   title: string
-  body: string
+  body?: string
+  confirmationText?: string
+  cancelText?: string
+  confirmationColor?: 'primary' | 'secondary' | 'warning'
+  cancelColor?: 'primary' | 'secondary' | 'warning'
+  confirmationVariant?: 'contained' | 'outlined'
+  cancelVariant?: 'contained' | 'outlined'
   confirmationCallback?: () => void
   cancelCallback?: () => void
 }
 
-const ConfirmationModal = ({ title, body, confirmationCallback }: ConfirmationModalProps) => {
+const ConfirmationModal = ({ title, body, confirmationCallback, confirmationColor, confirmationVariant, confirmationText, cancelCallback, cancelColor, cancelVariant, cancelText }: ConfirmationModalProps) => {
   const { dispatch } = useContext(context)
 
   const handleCancel = useCallback(() => {
@@ -33,9 +39,9 @@ const ConfirmationModal = ({ title, body, confirmationCallback }: ConfirmationMo
     >
       <Typography variant="body1">{body}</Typography>
       <ButtonWrapper>
-        <Button variant='contained'
-          color="secondary" fullWidth onClick={handleCancel}>Cancel</Button>
-        <Button variant='contained' fullWidth onClick={handleConfirm}>Ok</Button>
+        <Button variant={confirmationVariant ?? 'outlined'}
+          color={cancelColor ?? 'secondary'} fullWidth onClick={handleCancel}>{cancelText ?? 'Cancel'}</Button>
+        <Button variant={confirmationVariant ?? 'contained'} color={confirmationColor ?? 'primary'} fullWidth onClick={handleConfirm}>{confirmationText ?? 'Ok'}</Button>
       </ButtonWrapper>
     </Modal >
   )
