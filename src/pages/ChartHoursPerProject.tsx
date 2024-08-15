@@ -28,7 +28,7 @@ const ChartHoursPerProject: React.FC<Props> = ({ start, end }) => {
             durationMS: projectDurations[project.id] || 0
         }))
     }, [start, end])
-    console.log('data', data)
+
     return (
         <ResponsiveContainer width="100%" height={400}>
             <BarChart data={data}>

@@ -49,7 +49,6 @@ const TimeInput = () => {
     const startTimer = useCallback(() => {
         startTime.current = moment()
         setTimerRunning(true)
-        console.log(startTime.current)
     }, [])
 
     const endTimer = useCallback(async () => {
@@ -58,7 +57,6 @@ const TimeInput = () => {
         const durationMS = moment().valueOf() - startTime.current.valueOf()
         let projectId = selectedProjectId
         if (newProjectTitle.length > 0) {
-            console.log('adding new')
             projectId = (await addProject()).id
         }
 

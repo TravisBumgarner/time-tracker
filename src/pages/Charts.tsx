@@ -1,5 +1,7 @@
+import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import moment, { type Moment } from 'moment'
 import { useState } from 'react'
+import { TDateISODate } from 'types'
 import { formatDateKeyLookup } from 'utilities'
 import ChartHoursPerProject from './ChartHoursPerProject'
 
@@ -10,26 +12,26 @@ enum View {
     AllTime = 'allTime'
 }
 
-const getDateRange = (view: View, date: Date) => {
-    const mDate = moment(date)
-
+const getDateRange = (view: View, dateStr: TDateISODate) => {
     let start: Moment
     let end: Moment
 
+    const date = moment(dateStr)
+
     switch (view) {
         case View.Daily: {
-            start = mDate.startOf('day')
-            end = mDate.endOf('day')
+            start = date.startOf('day')
+            end = date.endOf('day')
             break
         }
         case View.Weekly: {
-            start = mDate.startOf('week')
-            end = mDate.endOf('week')
+            start = date.startOf('week')
+            end = date.endOf('week')
             break
         }
         case View.Monthly: {
-            start = mDate.startOf('month')
-            end = mDate.endOf('month')
+            start = date.startOf('month')
+            end = date.endOf('month')
             break
         }
         case View.AllTime: {
@@ -47,26 +49,36 @@ const getDateRange = (view: View, date: Date) => {
 
 const Charts = () => {
     const [currentView, setCurrentView] = useState<View>(View.Weekly)
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+    const [selectedDate, setSelectedDate] = useState<TDateISODate>(formatDateKeyLookup(moment().local()))
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedDate(new Date(e.target.value))
+        setSelectedDate(formatDateKeyLookup(moment(e.target.value)))
+    }
+
+    const handleViewChange = (event: React.MouseEvent<HTMLElement>, newView: View) => {
+        if (newView !== null) {
+            setCurrentView(newView)
+        }
+    }
+
+    const handleCurrentDate = () => {
+        setSelectedDate(formatDateKeyLookup(moment()))
     }
 
     const handlePreviousDate = () => {
         const mDate = moment(selectedDate)
         switch (currentView) {
             case View.Daily:
-                setSelectedDate(mDate.subtract(1, 'day').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.subtract(1, 'day').local()))
                 break
             case View.Weekly:
-                setSelectedDate(mDate.subtract(1, 'week').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.subtract(1, 'week').local()))
                 break
             case View.Monthly:
-                setSelectedDate(mDate.subtract(1, 'month').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.subtract(1, 'month').local()))
                 break
             case View.AllTime:
-                setSelectedDate(mDate.subtract(1, 'year').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.subtract(1, 'year').local()))
                 break
         }
     }
@@ -75,16 +87,16 @@ const Charts = () => {
         const mDate = moment(selectedDate)
         switch (currentView) {
             case View.Daily:
-                setSelectedDate(mDate.add(1, 'day').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.add(1, 'day').local()))
                 break
             case View.Weekly:
-                setSelectedDate(mDate.add(1, 'week').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.add(1, 'week').local()))
                 break
             case View.Monthly:
-                setSelectedDate(mDate.add(1, 'month').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.add(1, 'month').local()))
                 break
             case View.AllTime:
-                setSelectedDate(mDate.add(1, 'year').toDate())
+                setSelectedDate(formatDateKeyLookup(mDate.add(1, 'year').local()))
                 break
         }
     }
@@ -93,15 +105,29 @@ const Charts = () => {
 
     return (
         <div>
+            <ToggleButtonGroup
+                value={currentView}
+                exclusive
+                onChange={handleViewChange}
+                aria-label="view selection"
+            >
+                <ToggleButton value={View.Daily} aria-label="daily">
+                    Daily
+                </ToggleButton>
+                <ToggleButton value={View.Weekly} aria-label="weekly">
+                    Weekly
+                </ToggleButton>
+                <ToggleButton value={View.Monthly} aria-label="monthly">
+                    Monthly
+                </ToggleButton>
+                <ToggleButton value={View.AllTime} aria-label="all time">
+                    All Time
+                </ToggleButton>
+            </ToggleButtonGroup>
             <div>
-                <button onClick={() => { setCurrentView(View.Daily) }}>Daily</button>
-                <button onClick={() => { setCurrentView(View.Weekly) }}>Weekly</button>
-                <button onClick={() => { setCurrentView(View.Monthly) }}>Monthly</button>
-                <button onClick={() => { setCurrentView(View.AllTime) }}>All Time</button>
-            </div>
-            <div>
+                <input disabled={currentView === View.AllTime} type="date" value={selectedDate} onChange={handleDateChange} />
                 <button disabled={currentView === View.AllTime} onClick={handlePreviousDate}>Previous</button>
-                <input disabled={currentView === View.AllTime} type="date" value={selectedDate.toISOString().split('T')[0]} onChange={handleDateChange} />
+                <button disabled={currentView === View.AllTime} onClick={handleCurrentDate}>Current</button>
                 <button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</button>
             </div>
             <ChartHoursPerProject start={start} end={end} />
