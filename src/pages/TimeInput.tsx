@@ -1,15 +1,16 @@
-import { Box, Button, Container, css, FormControl, FormLabel, Input, InputLabel, MenuItem, Select, Table, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
+import { Box, Button, Container, css, FormControl, FormLabel, Input, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import db from 'database'
+import moment, { type Moment } from 'moment'
 import { EmptyStateDisplay } from 'sharedComponents'
 import { EProjectStatus, type TProject, type TProjectEntry } from 'types'
-import { formatDurationDisplayString } from 'utilities'
+import { formatDateKeyLookup, formatDurationDisplayString } from 'utilities'
 
 const TimeInput = () => {
-    const startTime = useRef<Date | null>(null)
+    const startTime = useRef<Moment | null>(null)
     const [timerRunning, setTimerRunning] = useState(false)
     const [selectedProjectId, setSelectedProjectId] = useState('')
     const [newProjectTitle, setNewProjectTitle] = useState('')
@@ -46,7 +47,7 @@ const TimeInput = () => {
     }, [newProjectTitle])
 
     const startTimer = useCallback(() => {
-        startTime.current = new Date()
+        startTime.current = moment()
         setTimerRunning(true)
         console.log(startTime.current)
     }, [])
@@ -54,7 +55,7 @@ const TimeInput = () => {
     const endTimer = useCallback(async () => {
         if (!startTime.current) return
         setTimerRunning(false)
-        const durationMS = new Date().getTime() - startTime.current.getTime()
+        const durationMS = moment().valueOf() - startTime.current.valueOf()
         let projectId = selectedProjectId
         if (newProjectTitle.length > 0) {
             console.log('adding new')
@@ -62,7 +63,7 @@ const TimeInput = () => {
         }
 
         const newEntry: TProjectEntry = {
-            date: new Date().toLocaleDateString(),
+            date: formatDateKeyLookup(startTime.current),
             durationMS,
             id: uuidv4(),
             projectId,
@@ -124,17 +125,21 @@ const TimeInput = () => {
             </div>
             <Table>
                 <TableHead>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Project</TableCell>
-                    <TableCell>Duration</TableCell>
-                </TableHead>
-                {projectEntries?.map((entry) => (
-                    <TableRow key={entry.id}>
-                        <TableCell>{entry.date}</TableCell>
-                        <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
-                        <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
+                    <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Project</TableCell>
+                        <TableCell>Duration</TableCell>
                     </TableRow>
-                ))}
+                </TableHead>
+                <TableBody>
+                    {projectEntries?.map((entry) => (
+                        <TableRow key={entry.id}>
+                            <TableCell>{entry.date}</TableCell>
+                            <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                            <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
             </Table>
         </Container>
     )
