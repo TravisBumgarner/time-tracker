@@ -1,7 +1,8 @@
-import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, ButtonGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import moment, { type Moment } from 'moment'
 import { useState } from 'react'
-import { TDateISODate } from 'types'
+import { type TDateISODate } from 'types'
 import { formatDateKeyLookup } from 'utilities'
 import ChartHoursPerProject from './ChartHoursPerProject'
 
@@ -51,7 +52,8 @@ const Charts = () => {
     const [currentView, setCurrentView] = useState<View>(View.Weekly)
     const [selectedDate, setSelectedDate] = useState<TDateISODate>(formatDateKeyLookup(moment().local()))
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDateChange = (e: any) => {
+        console.log(e)
         setSelectedDate(formatDateKeyLookup(moment(e.target.value)))
     }
 
@@ -104,34 +106,41 @@ const Charts = () => {
     const { start, end } = getDateRange(currentView, selectedDate)
 
     return (
-        <div>
-            <ToggleButtonGroup
-                value={currentView}
-                exclusive
-                onChange={handleViewChange}
-                aria-label="view selection"
-            >
-                <ToggleButton value={View.Daily} aria-label="daily">
-                    Daily
-                </ToggleButton>
-                <ToggleButton value={View.Weekly} aria-label="weekly">
-                    Weekly
-                </ToggleButton>
-                <ToggleButton value={View.Monthly} aria-label="monthly">
-                    Monthly
-                </ToggleButton>
-                <ToggleButton value={View.AllTime} aria-label="all time">
-                    All Time
-                </ToggleButton>
-            </ToggleButtonGroup>
-            <div>
-                <input disabled={currentView === View.AllTime} type="date" value={selectedDate} onChange={handleDateChange} />
-                <button disabled={currentView === View.AllTime} onClick={handlePreviousDate}>Previous</button>
-                <button disabled={currentView === View.AllTime} onClick={handleCurrentDate}>Current</button>
-                <button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</button>
-            </div>
+        <Box>
+            <Box>
+                <ToggleButtonGroup
+                    sx={{ height: '40px' }}
+                    value={currentView}
+                    exclusive
+                    onChange={handleViewChange}
+                    aria-label="view selection"
+                >
+                    <ToggleButton value={View.Daily} aria-label="daily">
+                        Daily
+                    </ToggleButton>
+                    <ToggleButton value={View.Weekly} aria-label="weekly">
+                        Weekly
+                    </ToggleButton>
+                    <ToggleButton value={View.Monthly} aria-label="monthly">
+                        Monthly
+                    </ToggleButton>
+                    <ToggleButton value={View.AllTime} aria-label="all time">
+                        All Time
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
+            <Box>
+                <DatePicker
+                    slotProps={{ textField: { size: 'small' } }}
+                    value={moment(selectedDate) ?? null} onChange={handleDateChange} />
+                <ButtonGroup sx={{ height: '40px' }} variant="contained" aria-label="outlined primary button group">
+                    <Button disabled={currentView === View.AllTime} onClick={handlePreviousDate}>Previous</Button>
+                    <Button disabled={currentView === View.AllTime} onClick={handleCurrentDate}>Current</Button>
+                    <Button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</Button>
+                </ButtonGroup>
+            </Box>
             <ChartHoursPerProject start={start} end={end} />
-        </div>
+        </Box>
     )
 }
 

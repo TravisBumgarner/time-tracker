@@ -35,6 +35,7 @@
     "verify-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@mui/x-date-pickers": "^7.12.1",
     "electron-updater": "^6.1.4",
     "recharts": "^2.13.0-alpha.4"
   },
