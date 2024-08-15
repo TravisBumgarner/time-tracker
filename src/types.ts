@@ -44,4 +44,5 @@ export interface TSettings {
 
 export enum EActivePage {
   Home = 'Home',
+  Charts = 'Charts',
 }
