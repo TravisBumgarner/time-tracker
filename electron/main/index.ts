@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path'
 
 import { EAsyncMessageIPCFromMain, EAsyncMessageIPCFromRenderer, ESyncMessageIPC, type AppStartIPCFromMain, type AsyncBackupIPCFromMain, type AsyncBackupIPCFromRenderer, type AsyncNotificationIPCFromRenderer, type AsyncStartTimerIPCFromRenderer } from '../../shared/types'
 import { DATE_BACKUP_DATE } from '../../shared/utilities'
-import { isDebugProduction } from './config'
+import { isDebugProduction, isDev } from './config'
 import Timer from './timer'
 import { update } from './update'
 
@@ -59,11 +59,11 @@ const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
   const { width } = screen.getPrimaryDisplay().workAreaSize
 
-  const WINDOW_WIDTH = 500
+  const WINDOW_WIDTH = isDev ? 800 : 500
 
   win = new BrowserWindow({
     width: WINDOW_WIDTH,
-    height: 300,
+    height: isDev ? 600 : 300,
     show: false,
     x: width - WINDOW_WIDTH,
     y: 0,

@@ -1,8 +1,8 @@
-import { Box, Button, ButtonGroup, css, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, css, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import moment, { type Moment } from 'moment'
 import { useState } from 'react'
 import { type TDateISODate } from 'types'
-import { formatDateKeyLookup } from 'utilities'
+import { formatDateDisplayString, formatDateKeyLookup } from 'utilities'
 import ChartHoursPerProject from './ChartHoursPerProject'
 
 enum View {
@@ -42,8 +42,8 @@ const getDateRange = (view: View, dateStr: TDateISODate) => {
     }
 
     return {
-        start: formatDateKeyLookup(start),
-        end: formatDateKeyLookup(end)
+        start,
+        end
     }
 }
 
@@ -106,7 +106,7 @@ const Charts = () => {
 
     return (
         <Box>
-            <Box css={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box css={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <ToggleButtonGroup
                     value={currentView}
                     exclusive
@@ -134,14 +134,11 @@ const Charts = () => {
                         css={middleButtonCSS}
                         disabled={currentView === View.AllTime}
                         onClick={handleCurrentDate}
-                    >{isHovered ? 'Today' : `${start} - ${end}`}</Button>
+                    >{isHovered ? 'Today' : `${formatDateDisplayString(start)} - ${formatDateDisplayString(end)}`}</Button>
                     <Button css={buttonCSS} disabled={currentView === View.AllTime} onClick={handleNextDate}>{'>'}</Button>
                 </ButtonGroup>
             </Box>
-            <Box>
-                <Typography variant="h6"></Typography>
-            </Box>
-            <ChartHoursPerProject start={start} end={end} />
+            <ChartHoursPerProject start={formatDateKeyLookup(start)} end={formatDateKeyLookup(end)} />
         </Box >
     )
 }

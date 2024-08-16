@@ -8,9 +8,9 @@ class MySubClassedDexie extends Dexie {
 
   constructor() {
     super('time-tracker')
-    this.version(1).stores({
+    this.version(2).stores({
       projects: 'id, title, status',
-      projectEntries: 'id, projectId, date'
+      projectEntries: 'id, projectId, date, start'
     })
   }
 }

@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import moment from 'moment'
+import moment, { type Moment } from 'moment'
 
 import { type AppStartIPCFromMain, type AsyncMessageIPCFromRenderer, type ESyncMessageIPC, type SyncMessageIPCFromRenderer } from 'shared/types'
 import { DATE_ISO_DATE_MOMENT_STRING, EBackupInterval, EColorTheme, EProjectStatus, type TDateISODate } from './types'
@@ -22,16 +22,16 @@ const colorThemeOptionLabels: Record<EColorTheme, string> = {
   [EColorTheme.CONTRAST]: 'High Contrast'
 }
 
-const formatDateDisplayString = (date: TDateISODate | null): string => {
+const formatDateDisplayString = (date: Moment | null): string => {
   if (date === null) {
     return ''
   }
 
-  return moment(date, DATE_ISO_DATE_MOMENT_STRING).format('dddd, MMM Do')
+  return moment(date, DATE_ISO_DATE_MOMENT_STRING).format('MMM Do')
 }
 
 const formatDateKeyLookup = (date: moment.Moment): TDateISODate => {
-  return date.format('YYYY-MM-DD') as TDateISODate
+  return date.format('YYYY-MM-DD HH:mm:ss') as TDateISODate
 }
 
 const formatDurationDisplayString = (rawMS: number) => {
