@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, ButtonGroup, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import moment, { type Moment } from 'moment'
 import { useState } from 'react'
@@ -19,29 +19,30 @@ const getDateRange = (view: View, dateStr: TDateISODate) => {
 
     const date = moment(dateStr)
 
+    console.log('fetching view', view)
     switch (view) {
         case View.Daily: {
-            start = date.startOf('day')
-            end = date.endOf('day')
+            start = date.clone().startOf('day')
+            end = date.clone().endOf('day')
             break
         }
         case View.Weekly: {
-            start = date.startOf('week')
-            end = date.endOf('week')
+            start = date.clone().weekday(0).startOf('day')
+            end = date.clone().weekday(6).endOf('day')
             break
         }
         case View.Monthly: {
-            start = date.startOf('month')
-            end = date.endOf('month')
+            start = date.clone().startOf('month')
+            end = date.clone().endOf('month')
             break
         }
         case View.AllTime: {
             start = moment(0)
-            end = moment()
+            end = moment().add(1, 'day')
             break
         }
     }
-
+    console.log('deets', start, end)
     return {
         start: formatDateKeyLookup(start),
         end: formatDateKeyLookup(end)
@@ -138,6 +139,9 @@ const Charts = () => {
                     <Button disabled={currentView === View.AllTime} onClick={handleCurrentDate}>Current</Button>
                     <Button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</Button>
                 </ButtonGroup>
+            </Box>
+            <Box>
+                <Typography variant="h6">{start} - {end}</Typography>
             </Box>
             <ChartHoursPerProject start={start} end={end} />
         </Box>
