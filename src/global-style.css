@@ -14,5 +14,5 @@
 }
 
 body {
-  background-color: var(--mui-palette-background-default);
+  background-color: var(--mui-palette-background-default) !important;
 }

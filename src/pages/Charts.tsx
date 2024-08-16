@@ -1,5 +1,4 @@
-import { Box, Button, ButtonGroup, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { Box, Button, ButtonGroup, css, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import moment, { type Moment } from 'moment'
 import { useState } from 'react'
 import { type TDateISODate } from 'types'
@@ -19,7 +18,6 @@ const getDateRange = (view: View, dateStr: TDateISODate) => {
 
     const date = moment(dateStr)
 
-    console.log('fetching view', view)
     switch (view) {
         case View.Daily: {
             start = date.clone().startOf('day')
@@ -42,7 +40,7 @@ const getDateRange = (view: View, dateStr: TDateISODate) => {
             break
         }
     }
-    console.log('deets', start, end)
+
     return {
         start: formatDateKeyLookup(start),
         end: formatDateKeyLookup(end)
@@ -50,13 +48,13 @@ const getDateRange = (view: View, dateStr: TDateISODate) => {
 }
 
 const Charts = () => {
+    const [isHovered, setIsHovered] = useState(false)
     const [currentView, setCurrentView] = useState<View>(View.Weekly)
     const [selectedDate, setSelectedDate] = useState<TDateISODate>(formatDateKeyLookup(moment().local()))
 
-    const handleDateChange = (e: any) => {
-        console.log(e)
-        setSelectedDate(formatDateKeyLookup(moment(e.target.value)))
-    }
+    // const handleDateChange = (e: any) => {
+    //     setSelectedDate(formatDateKeyLookup(moment(e.target.value)))
+    // }
 
     const handleViewChange = (event: React.MouseEvent<HTMLElement>, newView: View) => {
         if (newView !== null) {
@@ -108,44 +106,53 @@ const Charts = () => {
 
     return (
         <Box>
-            <Box>
+            <Box css={{ display: 'flex', justifyContent: 'space-between' }}>
                 <ToggleButtonGroup
-                    sx={{ height: '40px' }}
                     value={currentView}
                     exclusive
                     onChange={handleViewChange}
                     aria-label="view selection"
                 >
-                    <ToggleButton value={View.Daily} aria-label="daily">
-                        Daily
+                    <ToggleButton css={buttonCSS} value={View.Daily} aria-label="daily">
+                        D
                     </ToggleButton>
-                    <ToggleButton value={View.Weekly} aria-label="weekly">
-                        Weekly
+                    <ToggleButton css={buttonCSS} value={View.Weekly} aria-label="weekly">
+                        W
                     </ToggleButton>
-                    <ToggleButton value={View.Monthly} aria-label="monthly">
-                        Monthly
+                    <ToggleButton css={buttonCSS} value={View.Monthly} aria-label="monthly">
+                        M
                     </ToggleButton>
-                    <ToggleButton value={View.AllTime} aria-label="all time">
-                        All Time
+                    <ToggleButton css={buttonCSS} value={View.AllTime} aria-label="all time">
+                        A
                     </ToggleButton>
                 </ToggleButtonGroup>
-            </Box>
-            <Box>
-                <DatePicker
-                    slotProps={{ textField: { size: 'small' } }}
-                    value={moment(selectedDate) ?? null} onChange={handleDateChange} />
-                <ButtonGroup sx={{ height: '40px' }} variant="contained" aria-label="outlined primary button group">
-                    <Button disabled={currentView === View.AllTime} onClick={handlePreviousDate}>Previous</Button>
-                    <Button disabled={currentView === View.AllTime} onClick={handleCurrentDate}>Current</Button>
-                    <Button disabled={currentView === View.AllTime} onClick={handleNextDate}>Next</Button>
+                <ButtonGroup variant="outlined" aria-label="outlined primary button group">
+                    <Button css={buttonCSS} disabled={currentView === View.AllTime} onClick={handlePreviousDate}>{'<'}</Button>
+                    <Button
+                        onMouseEnter={() => { setIsHovered(true) }}
+                        onMouseLeave={() => { setIsHovered(false) }}
+                        css={middleButtonCSS}
+                        disabled={currentView === View.AllTime}
+                        onClick={handleCurrentDate}
+                    >{isHovered ? 'Today' : `${start} - ${end}`}</Button>
+                    <Button css={buttonCSS} disabled={currentView === View.AllTime} onClick={handleNextDate}>{'>'}</Button>
                 </ButtonGroup>
             </Box>
             <Box>
-                <Typography variant="h6">{start} - {end}</Typography>
+                <Typography variant="h6"></Typography>
             </Box>
             <ChartHoursPerProject start={start} end={end} />
-        </Box>
+        </Box >
     )
 }
+
+const buttonCSS = css`
+    height: 30px;
+`
+
+const middleButtonCSS = css`
+    height: 30px;
+    width: 200px;
+`
 
 export default Charts

@@ -29,7 +29,7 @@ const ChartHoursPerProject: React.FC<Props> = ({ start, end }) => {
         }))
     }, [start, end])
     return (
-        <ResponsiveContainer width="90%" height={400}>
+        <ResponsiveContainer width="100%" height={180}>
             <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="title">

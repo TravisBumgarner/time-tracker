@@ -1,5 +1,5 @@
 import TrashIcon from '@mui/icons-material/Delete'
-import { Box, Button, Container, css, FormControl, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, type SelectChangeEvent } from '@mui/material'
+import { Box, Button, css, FormControl, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useContext, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -104,7 +104,7 @@ const TimeInput = () => {
     }, [startTime, selectedProjectId, newProjectTitle, addProject])
 
     return (
-        <Container>
+        <Box css={{ display: 'flex', flexGrow: 1, flexDirection: 'column' }}>
             <div>
                 {
                     timerRunning
@@ -187,17 +187,18 @@ const TimeInput = () => {
                         </Table>
                     </Box>
                 )}
-        </Container>
+        </Box>
     )
 }
 
 const tableContainerCSS = css`
     overflow: auto;
-    height: 500px;
+    flex-grow: 1;
+    height: 0; // Magic CSS to make this all work with vertical scroll.
 `
 
 const selectProjectContainerCSS = css`
-    width: 300px;
+    width: 170px;
 `
 
 const setupTimerContainerCSS = css`
