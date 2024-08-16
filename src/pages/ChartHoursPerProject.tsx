@@ -1,6 +1,6 @@
 import db from 'database'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Bar, BarChart, CartesianGrid, Label, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { type TDateISODate, type TProject, type TProjectEntry } from 'types'
 
 interface Props {
@@ -25,23 +25,19 @@ const ChartHoursPerProject: React.FC<Props> = ({ start, end }) => {
         // Combine project titles with durations
         return projects.map(project => ({
             title: project.title,
-            durationMS: projectDurations[project.id] || 0
+            durationHours: (projectDurations[project.id] || 0) / 1000 / 60 / 60
         }))
     }, [start, end])
-
     return (
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="90%" height={400}>
             <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="title">
-                    <Label value="Hours" offset={-5} position="insideBottom" />
                 </XAxis>
-                <YAxis>
-                    <Label value="Project" offset={-5} position="insideBottom" />
+                <YAxis dataKey="durationHours">
                 </YAxis>
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="hours" fill="#8884d8" />
+                <Bar dataKey="durationHours" fill="#8884d8" />
             </BarChart>
         </ResponsiveContainer>
     )
