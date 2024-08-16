@@ -12,3 +12,7 @@
   border: solid 3px var(--mui-palette-background-default);
   border-radius: 10px;
 }
+
+body {
+  background-color: var(--mui-palette-background-default);
+}
