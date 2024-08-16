@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path'
 
 import { EAsyncMessageIPCFromMain, EAsyncMessageIPCFromRenderer, ESyncMessageIPC, type AppStartIPCFromMain, type AsyncBackupIPCFromMain, type AsyncBackupIPCFromRenderer, type AsyncNotificationIPCFromRenderer, type AsyncStartTimerIPCFromRenderer } from '../../shared/types'
 import { DATE_BACKUP_DATE } from '../../shared/utilities'
-import { isDebugProduction, isDev } from './config'
+import { isDebugProduction } from './config'
 import Timer from './timer'
 import { update } from './update'
 
@@ -68,9 +68,8 @@ async function createWindow() {
     x: width - WINDOW_WIDTH,
     y: 0,
     frame: false,
-    title: isDev ? 'DEV MODE' : 'Time Tracker',
     icon: join(process.env.VITE_PUBLIC, 'icon.icns'),
-    skipTaskbar: true,
+    skipTaskbar: true, // Don't show in windows taskbar, I think...
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -110,7 +109,6 @@ let tray: Tray
 
 void app.whenReady().then(() => {
   const icon = nativeImage.createEmpty()
-  console.log('icon', icon)
   tray = new Tray(icon)
   tray.on('click', () => {
     if (win) {
