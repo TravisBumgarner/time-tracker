@@ -159,7 +159,6 @@ const headerCSS = css`
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  background-color: var(--mui-palette-background-default);
 `
 
 export default Header

@@ -58,10 +58,8 @@ const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
-    width: 840,
-    height: 700,
-    minWidth: 840,
-    minHeight: 700,
+    width: 500,
+    height: 300,
     x: 0,
     y: 0,
     title: isDev ? 'DEV MODE' : 'Time Tracker',
