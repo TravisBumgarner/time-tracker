@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, Notification, app, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeImage, Notification, screen, shell, Tray } from 'electron'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
 import moment from 'moment'
@@ -9,15 +9,15 @@ import { join, resolve } from 'node:path'
 import { EAsyncMessageIPCFromMain, EAsyncMessageIPCFromRenderer, ESyncMessageIPC, type AppStartIPCFromMain, type AsyncBackupIPCFromMain, type AsyncBackupIPCFromRenderer, type AsyncNotificationIPCFromRenderer, type AsyncStartTimerIPCFromRenderer } from '../../shared/types'
 import { DATE_BACKUP_DATE } from '../../shared/utilities'
 import { isDebugProduction, isDev } from './config'
-import menu from './menu'
 import Timer from './timer'
 import { update } from './update'
-
-Menu.setApplicationMenu(menu)
 
 log.info('backend logs intialized')
 log.transports.file.level = 'info'
 autoUpdater.logger = log
+
+// Don't show in mac dock
+app.dock.hide()
 
 // The built directory structure
 //
@@ -57,13 +57,20 @@ const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
+  const { width } = screen.getPrimaryDisplay().workAreaSize
+
+  const WINDOW_WIDTH = 500
+
   win = new BrowserWindow({
-    width: 500,
+    width: WINDOW_WIDTH,
     height: 300,
-    x: 0,
+    show: false,
+    x: width - WINDOW_WIDTH,
     y: 0,
+    frame: false,
     title: isDev ? 'DEV MODE' : 'Time Tracker',
     icon: join(process.env.VITE_PUBLIC, 'icon.icns'),
+    skipTaskbar: true,
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -99,7 +106,24 @@ async function createWindow() {
   update(win)
 }
 
-void app.whenReady().then(createWindow)
+let tray: Tray
+
+void app.whenReady().then(() => {
+  const icon = nativeImage.createEmpty()
+  console.log('icon', icon)
+  tray = new Tray(icon)
+  tray.on('click', () => {
+    if (win) {
+      if (win.isVisible()) {
+        win.hide()
+      } else {
+        win.show()
+      }
+    }
+  })
+  tray.setTitle('TT')
+  void createWindow()
+})
 
 app.on('window-all-closed', () => {
   win = null
