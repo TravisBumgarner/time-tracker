@@ -37,11 +37,11 @@ const formatDateKeyLookup = (date: moment.Moment): TDateISODate => {
 const formatDurationDisplayString = (rawMS: number) => {
   const hours = Math.floor(rawMS / 1000 / 60 / 60)
   const minutes = Math.floor(rawMS / 1000 / 60) % 60
-  const seconds = Math.floor(rawMS / 1000) % 60
 
-  const hoursString = hours > 0 ? `${hours}h ` : ''
-
-  return `${hoursString}${minutes}m ${seconds}s`
+  let output = ''
+  if (hours > 0) output += `${hours}h `
+  output += `${minutes}m`
+  return output
 }
 
 const saveFile = async (fileName: string, jsonData: unknown) => {

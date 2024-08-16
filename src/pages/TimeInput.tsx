@@ -1,5 +1,7 @@
 import TrashIcon from '@mui/icons-material/Delete'
-import { Box, Button, css, FormControl, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, type SelectChangeEvent } from '@mui/material'
+import TimerIcon from '@mui/icons-material/Timer'
+import TimerOffIcon from '@mui/icons-material/TimerOff'
+import { Box, css, FormControl, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, type SelectChangeEvent } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useContext, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -19,6 +21,7 @@ const TimeInput = () => {
     const [selectedProjectId, setSelectedProjectId] = useState('')
     const [newProjectTitle, setNewProjectTitle] = useState('')
     const [percentFocus, setPercentFocus] = useState(100)
+    const [details, setDetails] = useState('')
 
     const handleProjectChange = useCallback((event: SelectChangeEvent) => {
         setSelectedProjectId(event.target.value)
@@ -92,7 +95,7 @@ const TimeInput = () => {
             durationMS,
             id: uuidv4(),
             projectId,
-            details: 'Some details'
+            details: ''
         }
 
         await db.projectEntries.add(newEntry)
@@ -110,20 +113,28 @@ const TimeInput = () => {
                     timerRunning
                         ? (
                             <Box css={endTimerContainerCSS}>
-                                <div>
-                                    <TextField
-                                        id="outlined-number"
-                                        label="% Focus"
-                                        onChange={(e) => { setPercentFocus(parseInt(e.target.value)) }}
-                                        value={percentFocus}
-                                        type="number"
-                                        size="small"
-                                    />
-                                </div>
-                                <div>
-                                    <Button size="small" color="error" onClick={cancelTimer}>Cancel</Button>
-                                    <Button size="small" variant='contained' onClick={endTimer}>End Timer</Button>
-                                </div>
+                                <IconButton color="warning" aria-label="delete" onClick={cancelTimer}>
+                                    <TrashIcon />
+                                </IconButton>
+                                <TextField
+                                    label="% Focus"
+                                    onChange={(e) => { setPercentFocus(parseInt(e.target.value)) }}
+                                    value={percentFocus}
+                                    type="number"
+                                    size="small"
+                                    css={{ width: '80px' }}
+                                />
+                                <TextField
+                                    label="Details"
+                                    onChange={(e) => { setDetails(e.target.value) }}
+                                    value={details}
+                                    size="small"
+                                    css={{ flexGrow: 1, marginLeft: '16px' }}
+                                />
+
+                                <IconButton color="primary" aria-label="delete" onClick={endTimer}>
+                                    <TimerOffIcon />
+                                </IconButton>
                             </Box>
                         )
                         : (
@@ -150,7 +161,9 @@ const TimeInput = () => {
                                             </FormControl>
                                         )}
                                     </div>
-                                    <Button size="small" disabled={!selectedProjectId && !newProjectTitle} variant='contained' onClick={startTimer}>Start</Button>
+                                    <IconButton color='primary' disabled={!selectedProjectId && !newProjectTitle} aria-label="start" onClick={startTimer}>
+                                        <TimerIcon />
+                                    </IconButton>
                                 </Box>
 
                             )
@@ -158,14 +171,15 @@ const TimeInput = () => {
                 }
             </div>
             {(!projects || !projectEntries || projectEntries.length === 0)
-                ? < EmptyStateDisplay message="Do Soemthing lol" />
+                ? < EmptyStateDisplay message="Time to get started!" />
                 : (
                     <Box css={tableContainerCSS}>
-                        <Table>
+                        <Table size="small">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Date</TableCell>
                                     <TableCell>Project</TableCell>
+                                    <TableCell>Details</TableCell>
                                     <TableCell>Duration</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
@@ -175,6 +189,7 @@ const TimeInput = () => {
                                     <TableRow key={entry.id}>
                                         <TableCell>{entry.date}</TableCell>
                                         <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                                        <TableCell>{entry.details}</TableCell>
                                         <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
                                         <TableCell>
                                             <IconButton aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
@@ -195,6 +210,16 @@ const tableContainerCSS = css`
     overflow: auto;
     flex-grow: 1;
     height: 0; // Magic CSS to make this all work with vertical scroll.
+    table {
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 4px 8px; // Reduce padding for a denser look
+        font-size: 0.875rem; // Smaller font size
+    }
+    th {
+        font-weight: bold;
+    }
 `
 
 const selectProjectContainerCSS = css`
