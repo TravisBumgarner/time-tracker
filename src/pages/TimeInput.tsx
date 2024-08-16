@@ -34,11 +34,11 @@ const TimeInput = () => {
             return acc
         }, {})
         return projectsById
-    }, [])
+    })
 
     const projectEntries = useLiveQuery(async () => {
-        return await db.projectEntries.toArray()
-    }, [])
+        return await db.projectEntries.orderBy('start').reverse().limit(8).toArray()
+    })
 
     const addProject = useCallback(async () => {
         if (!newProjectTitle) throw Error('Something went wrong')
@@ -79,23 +79,23 @@ const TimeInput = () => {
         setSelectedProjectId('')
         setNewProjectTitle('')
         setPercentFocus(100)
+        setDetails('')
     }, [])
 
     const endTimer = useCallback(async () => {
         if (!startTime.current) return
         setTimerRunning(false)
-        const durationMS = moment().valueOf() - startTime.current.valueOf()
         let projectId = selectedProjectId
         if (newProjectTitle.length > 0) {
             projectId = (await addProject()).id
         }
 
         const newEntry: TProjectEntry = {
-            date: formatDateKeyLookup(startTime.current),
-            durationMS,
+            start: formatDateKeyLookup(startTime.current),
+            end: formatDateKeyLookup(moment()),
             id: uuidv4(),
             projectId,
-            details: ''
+            details
         }
 
         await db.projectEntries.add(newEntry)
@@ -104,7 +104,8 @@ const TimeInput = () => {
         setSelectedProjectId('')
         setNewProjectTitle('')
         setPercentFocus(100)
-    }, [startTime, selectedProjectId, newProjectTitle, addProject])
+        setDetails('')
+    }, [startTime, selectedProjectId, newProjectTitle, addProject, details])
 
     return (
         <Box css={{ display: 'flex', flexGrow: 1, flexDirection: 'column' }}>
@@ -177,45 +178,55 @@ const TimeInput = () => {
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Date</TableCell>
+                                    <TableCell>Start</TableCell>
                                     <TableCell>Project</TableCell>
                                     <TableCell>Details</TableCell>
                                     <TableCell>Duration</TableCell>
-                                    <TableCell>Actions</TableCell>
+                                    <TableCell></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {projectEntries?.map((entry) => (
-                                    <TableRow key={entry.id}>
-                                        <TableCell>{entry.date}</TableCell>
-                                        <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
-                                        <TableCell>{entry.details}</TableCell>
-                                        <TableCell>{formatDurationDisplayString(entry.durationMS)}</TableCell>
-                                        <TableCell>
-                                            <IconButton aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
-                                                <TrashIcon />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {projectEntries?.map((entry) => {
+                                    const start = moment(entry.start)
+                                    const end = moment(entry.end)
+                                    const duration = moment.duration(end.diff(start))
+
+                                    return (
+                                        < TableRow key={entry.id} >
+                                            <TableCell>{entry.start}</TableCell>
+                                            <TableCell>{projects[entry.projectId]?.title || 'Title not found'}</TableCell>
+                                            <TableCell>{entry.details}</TableCell>
+                                            <TableCell>{formatDurationDisplayString(duration.asMilliseconds())}</TableCell>
+                                            <TableCell>
+                                                <IconButton css={{ padding: 0 }} aria-label="delete" onClick={() => { triggerDeleteModal(entry.id) }}>
+                                                    <TrashIcon fontSize="small" />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                }
+                                )}
                             </TableBody>
                         </Table>
                     </Box>
-                )}
-        </Box>
+                )
+            }
+        </Box >
     )
 }
 
 const tableContainerCSS = css`
     overflow: auto;
     flex-grow: 1;
+    margin-top: 16px;
     height: 0; // Magic CSS to make this all work with vertical scroll.
     table {
         border-collapse: collapse;
     }
     th, td {
-        padding: 4px 8px; // Reduce padding for a denser look
-        font-size: 0.875rem; // Smaller font size
+        padding: 2px 4px; // Reduce padding for a denser look
+        font-size: 10px; // Smaller font size
+        line-height: 1;
     }
     th {
         font-weight: bold;
